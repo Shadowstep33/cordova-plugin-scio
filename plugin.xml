@@ -17,7 +17,7 @@ id="cordova-plugin-scio" version="0.2.3">
             </feature>
         </config-file>
 
-        <source-file src="src/android/com/myscioapplication/MainActivity.java"
+        <source-file src="src/android/com/myscioapplication/activities/MainActivity.java"
             target-dir="src/com/myscioapplication"/>
 
         <config-file target="AndroidManifest.xml" parent="/manifest">
