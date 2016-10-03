@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+id="cordova-plugin-scio" version="0.2.3">
+	<name>Scio Cordova</name>
+	<description>Spectroscopy through Cordova</description>
+	<license>Apache 2.0</license>
+	<keywords>cordova,device</keywords>
+    <js-module src="www/scio.js" name="scio">
+        <clobbers target="window.scio" />
+    </js-module>
+
+    <platform name="android">
+
+        <config-file target="res/xml/config.xml" parent="/widget">
+            <feature name="CordovaScio">
+                <param name="android-package" value="consumerphysics.com.myscioapplication.activities"/>
+            </feature>
+        </config-file>
+
+        <source-file src="src/android/com/myscioapplication/MainActivity.java"
+            target-dir="src/com/myscioapplication"/>
+
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <uses-permission android:name="android.permission.BLUETOOTH" />
+            <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+        </config-file>
+
+    </platform>
+</plugin>
