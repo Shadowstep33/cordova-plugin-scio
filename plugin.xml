@@ -22,9 +22,6 @@ id="cordova-plugin-scio" version="0.2.3">
         <source-file src="src/android/com/myscioapplication/utils/StringUtils.java"
             target-dir="src/com/myscioapplication"/>
 			
-        <source-file src="src/android/com/myscioapplication/activities/BaseScioActivity.java"
-            target-dir="src/com/myscioapplication"/>
-			
         <config-file target="res/xml/config.xml" parent="/widget">
             <feature name="CordovaScio">
                 <param name="android-package" value="consumerphysics.com.myscioapplication.activities"/>
