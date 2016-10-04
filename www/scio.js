@@ -8,7 +8,7 @@ module.exports = {
 			function(error) {
 				alert(error + " Scio not connected");
 			},
-			"ScioDevice",
+			"BaseScioActivity",
 			"connect",
 			[]
 		);
