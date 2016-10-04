@@ -11,14 +11,14 @@ id="cordova-plugin-scio" version="0.2.3">
 
     <platform name="android">
 
+        <source-file src="src/android/com/myscioapplication/activities/BaseScioActivity.java"
+            target-dir="src/com/myscioapplication"/>
+			
         <config-file target="res/xml/config.xml" parent="/widget">
             <feature name="CordovaScio">
                 <param name="android-package" value="consumerphysics.com.myscioapplication.activities"/>
             </feature>
         </config-file>
-
-        <source-file src="src/android/com/myscioapplication/activities/MainActivity.java"
-            target-dir="src/com/myscioapplication"/>
 
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.BLUETOOTH" />
