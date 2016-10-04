@@ -11,6 +11,7 @@ id="cordova-plugin-scio" version="0.2.3">
 
     <platform name="android">
 
+		<resource-file src="aar/SCiOSDK_Android.aar" target="aar/SCiOSDK_Android.aar" />
         <source-file src="src/android/com/myscioapplication/activities/BaseScioActivity.java"
             target-dir="src/com/myscioapplication"/>
 			
