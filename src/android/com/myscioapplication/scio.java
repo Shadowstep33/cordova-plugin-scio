@@ -1,4 +1,4 @@
-package org.apache.cordova.plugin;
+package com.squarevault.cordova.scio;
 
 import org.apache.cordova.api.CordovaPlugin;
 import org.apache.cordova.api.PluginResult;

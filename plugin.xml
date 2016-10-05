@@ -23,8 +23,8 @@ id="cordova-plugin-scio" version="0.2.3">
             target-dir="src/com/myscioapplication"/>
 			
         <config-file target="res/xml/config.xml" parent="/widget">
-            <feature name="BaseScioActivity">
-                <param name="android-package" value="consumerphysics.com.myscioapplication.activities.BaseScioActivity"/>
+            <feature name="ScioCordova">
+                <param name="android-package" value="com.squarevault.cordova.scio.ScioCordova"/>
             </feature>
         </config-file>
 
