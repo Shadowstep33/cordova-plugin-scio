@@ -27,6 +27,8 @@ id="cordova-plugin-scio" version="0.2.3">
                 <param name="android-package" value="com.squarevault.cordova.scio.ScioCordova"/>
             </feature>
         </config-file>
+		
+		<source-file src="src/android/com/myscioapplication/scio.java" target-dir="src/android/com/myscioapplication" /> 
 
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.BLUETOOTH" />
