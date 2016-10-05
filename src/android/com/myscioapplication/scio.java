@@ -44,6 +44,8 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 			
 			if (!StringUtils.isEmpty(deviceAddress)) {
 				connect(deviceAddress, callbackContext);
+			}else{
+				callbackContext.error("Device ID Empty");
 			}
 
             return true;
