@@ -7,6 +7,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.view.WindowManager;
+
 import com.consumerphysics.android.sdk.callback.device.ScioDeviceCallback;
 import com.consumerphysics.android.sdk.callback.device.ScioDeviceConnectHandler;
 import com.consumerphysics.android.sdk.sciosdk.ScioCloud;
