@@ -27,6 +27,7 @@ import consumerphysics.com.myscioapplication.utils.StringUtils;
 public class ScioCordova extends CordovaPlugin implements IScioDevice {
 
 	private Context context;
+	private CallbackContext callbackContext;
     private ScioCloud scioCloud;
     private ScioDevice scioDevice;
 
@@ -51,15 +52,16 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
     }
 	
     @Override
-    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+    public boolean execute(String action, JSONArray args, CallbackContext cbCtx) throws JSONException {
 		context = this.cordova.getActivity().getApplicationContext();
+		callbackContext = cbCtx;
 		
         if (action.equals("connect")) {
 			/* Get the Preferred Scio Device and Connect */
 			final String deviceAddress = getSharedPreferences().getString(Constants.SCIO_ADDRESS, null);
 			
 			if (!StringUtils.isEmpty(deviceAddress)) {
-				connect(deviceAddress, callbackContext);
+				connect(deviceAddress);
 			}else{
 				callbackContext.error("Device ID Empty");
 			}
@@ -69,7 +71,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
         return false;
     }
 
-    private void connect(final String deviceAddress, CallbackContext callbackContext) {
+    private void connect(final String deviceAddress) {
 	
         scioDevice = new ScioDevice(context, deviceAddress);
 		
