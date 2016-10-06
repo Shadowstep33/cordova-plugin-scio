@@ -21,9 +21,8 @@ import com.consumerphysics.android.sdk.sciosdk.ScioDevice;
 import consumerphysics.com.myscioapplication.config.Constants;
 import consumerphysics.com.myscioapplication.interfaces.IScioDevice;
 import consumerphysics.com.myscioapplication.utils.StringUtils;
-/**
- * This class echoes a string called from JavaScript.
- */
+
+
 public class ScioCordova extends CordovaPlugin implements IScioDevice {
 
 	private Context context;
@@ -47,8 +46,8 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
         return scioCloud != null && scioCloud.hasAccessToken();
     }
 
-    protected SharedPreferences getSharedPreferences() {
-        return getSharedPreferences();
+    protected SharedPreferences getSharedPrefs() {
+        return context.getSharedPreferences(Constants.PREF_FILE, Context.MODE_PRIVATE);
     }
 	
     @Override
@@ -58,7 +57,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 		
         if (action.equals("connect")) {
 			/* Get the Preferred Scio Device and Connect */
-			final String deviceAddress = getSharedPreferences().getString(Constants.SCIO_ADDRESS, null);
+			final String deviceAddress = getSharedPrefs().getString(Constants.SCIO_ADDRESS, null);
 			
 			if (!StringUtils.isEmpty(deviceAddress)) {
 				connect(deviceAddress);
@@ -75,27 +74,27 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 	
         scioDevice = new ScioDevice(context, deviceAddress);
 		
-        scioDevice.connect(new ScioDeviceConnectHandler() {
+        scioDevice.connect(new ScioDeviceConnectHandler() {		
             @Override
             public void onConnected() { 
-				callbackContext.success("Scio at "+deviceAddress+" connected");
+				onScioConnected();
             }
 
             @Override
             public void onConnectFailed() {
-				callbackContext.error("Scio at "+deviceAddress+" failed to connect");
+				onScioConnectionFailed();
             }
 
             @Override
             public void onTimeout() {
-				callbackContext.error("Scio at "+deviceAddress+" timed out");
+				onScioDisconnected();
             }
         });
 
         scioDevice.setScioDisconnectCallback(new ScioDeviceCallback() {
             @Override
             public void execute() {
-				callbackContext.error("Scio at "+deviceAddress+" disconnected");
+				onScioDisconnected();
             }
         });
 
@@ -113,13 +112,16 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 
     @Override
     public void onScioConnected() {
+		callbackContext.success("Scio at connected");
     }
 
     @Override
     public void onScioConnectionFailed() {
+		callbackContext.error("Scio at failed to connect");
     }
 
     @Override
     public void onScioDisconnected() {
+		callbackContext.error("Scio at disconnected");
     }
 }

@@ -12,5 +12,18 @@ module.exports = {
 			"connect",
 			[]
 		);
+	},
+	scanBLE: function(){
+		cordova.exec(
+			function(winParam) {
+				alert(winParam + "Scio Scanned");
+			},
+			function(error) {
+				alert(error + " scan failed");
+			},
+			"DiscoverActivity",
+			"scanble",
+			[]
+		);
 	}
 };

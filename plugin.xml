@@ -28,6 +28,9 @@ id="cordova-plugin-scio" version="0.2.3">
             <feature name="ScioCordova">
                 <param name="android-package" value="com.squarevault.cordova.scio.ScioCordova"/>
             </feature>
+            <feature name="ScioCordovaBLE">
+                <param name="android-package" value="com.squarevault.cordova.scio.DiscoverActivity"/>
+            </feature>
         </config-file>
 		
 		<source-file src="src/android/com/myscioapplication/ScioCordova.java" target-dir="src/android/com/myscioapplication" /> 
