@@ -46,7 +46,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
     }
 
     protected SharedPreferences getSharedPreferences() {
-        return getSharedPreferences(Constants.PREF_FILE, Context.MODE_PRIVATE);
+        return getSharedPreferences();
     }
 	
     @Override
@@ -98,5 +98,21 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
                 /* Btn Handler */
             }
         });
+    }
+	
+    @Override
+    public void onScioButtonClicked() {
+    }
+
+    @Override
+    public void onScioConnected() {
+    }
+
+    @Override
+    public void onScioConnectionFailed() {
+    }
+
+    @Override
+    public void onScioDisconnected() {
     }
 }
