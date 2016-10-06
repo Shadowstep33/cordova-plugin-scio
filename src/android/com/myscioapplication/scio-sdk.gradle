@@ -6,7 +6,8 @@ repositories{
 }
 
 dependencies {
-   compile(name:'SCiOSDK_Android', ext:'aar')
+	compile 'com.android.support:appcompat-v7:23.0.1'
+	compile(name:'SCiOSDK_Android', ext:'aar')
 }
 
 android {
