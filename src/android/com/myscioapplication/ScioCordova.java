@@ -8,11 +8,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.WindowManager;
 
+import com.consumerphysics.android.scioconnection.services.SCiOBLeService;
+import com.consumerphysics.android.scioconnection.utils.BLEUtils;
 import com.consumerphysics.android.sdk.callback.device.ScioDeviceCallback;
 import com.consumerphysics.android.sdk.callback.device.ScioDeviceConnectHandler;
 import com.consumerphysics.android.sdk.sciosdk.ScioCloud;
@@ -22,9 +26,31 @@ import consumerphysics.com.myscioapplication.config.Constants;
 import consumerphysics.com.myscioapplication.interfaces.IScioDevice;
 import consumerphysics.com.myscioapplication.utils.StringUtils;
 
-
 public class ScioCordova extends CordovaPlugin implements IScioDevice {
 
+    private Map<String, String> devices;
+    private DevicesAdapter devicesAdapter;
+    private BluetoothAdapter bluetoothAdapter;
+
+    // BlueTooth scan callback
+    private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
+        @Override
+        public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+            String deviceName = device.getName();
+
+            // Show only SCiO devices
+            if (deviceName != null && deviceName.startsWith("SCiO")) {
+                deviceName = deviceName.substring(4);
+                String scio = devices.get(device.getAddress());
+				callbackContext.success("Scio found with BLE");
+				
+                if (scio == null) {
+                    addDevice(deviceName, device.getAddress());
+                }
+            }
+        }
+    };
+	
 	private Context context;
 	private CallbackContext callbackContext;
     private ScioCloud scioCloud;
@@ -67,6 +93,16 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 
             return true;
         }
+		
+        if (action.equals("scanble")) {
+
+			bluetoothAdapter = BLEUtils.getBluetoothAdapter(this);
+
+			// Start Scan
+			bluetoothAdapter.startLeScan(leScanCallback);
+            return true;
+        }
+		
         return false;
     }
 

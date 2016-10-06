@@ -21,7 +21,7 @@ module.exports = {
 			function(error) {
 				alert(error + " scan failed");
 			},
-			"DiscoverActivity",
+			"ScioCordova",
 			"scanble",
 			[]
 		);

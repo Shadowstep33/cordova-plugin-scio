@@ -1,11 +1,4 @@
-package com.squarevault.cordova.scio;
-
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CallbackContext;
-import org.apache.cordova.PluginResult;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+package consumerphysics.com.myscioapplication.activities;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -35,7 +28,7 @@ import java.util.Map;
 import consumerphysics.com.myscioapplication.R;
 import consumerphysics.com.myscioapplication.config.Constants;
 
-public final class DiscoverActivity extends CordovaPlugin {
+public final class DiscoverActivity extends Activity {
 
     private static final String TAG = DiscoverActivity.class.getSimpleName();
 
@@ -55,6 +48,7 @@ public final class DiscoverActivity extends CordovaPlugin {
                 String scio = devices.get(device.getAddress());
 
                 if (scio == null) {
+                    Log.d(TAG, "found scio device device: " + deviceName + ", " + device.getAddress());
                     addDevice(deviceName, device.getAddress());
                 }
             }
@@ -100,27 +94,45 @@ public final class DiscoverActivity extends CordovaPlugin {
     }
 
     @Override
-    public boolean execute(String action, JSONArray args, CallbackContext cbCtx) throws JSONException {
-		context = this.cordova.getActivity().getApplicationContext();
-		callbackContext = cbCtx;
-		
-        if (action.equals("scanble")) {
-			// Kill the previous service
-			stopService(new Intent(this, SCiOBLeService.class));
+    protected void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-			devices = new LinkedHashMap<>();
+        // Kill the previous service
+        stopService(new Intent(this, SCiOBLeService.class));
 
-			final List<Device> arrayOfDevices = new ArrayList<>();
-			devicesAdapter = new DevicesAdapter(this, arrayOfDevices);
+        setContentView(R.layout.activity_discover);
+        setTitle("Select SCiO Device");
 
-			bluetoothAdapter = BLEUtils.getBluetoothAdapter(this);
+        devices = new LinkedHashMap<>();
 
-			// Start Scan
-			bluetoothAdapter.startLeScan(leScanCallback);
-            return true;
-        }
-		
-        return false;
+        final List<Device> arrayOfDevices = new ArrayList<>();
+        devicesAdapter = new DevicesAdapter(this, arrayOfDevices);
+
+        final ListView lv = (ListView) findViewById(R.id.listView);
+        lv.setAdapter(devicesAdapter);
+
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Device dev = devicesAdapter.getItem(position);
+                storeDevice(dev);
+                Toast.makeText(getApplicationContext(), dev.getName() + " was selected", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        });
+
+        bluetoothAdapter = BLEUtils.getBluetoothAdapter(this);
+
+        // Start Scan
+        bluetoothAdapter.startLeScan(leScanCallback);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        // Stop Scan
+        bluetoothAdapter.stopLeScan(leScanCallback);
     }
 
     private void storeDevice(final Device device) {
