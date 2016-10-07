@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.WindowManager;
@@ -23,6 +24,7 @@ import com.consumerphysics.android.sdk.callback.device.ScioDeviceCallback;
 import com.consumerphysics.android.sdk.callback.device.ScioDeviceConnectHandler;
 import com.consumerphysics.android.sdk.sciosdk.ScioCloud;
 import com.consumerphysics.android.sdk.sciosdk.ScioDevice;
+import com.consumerphysics.android.sdk.callback.cloud.ScioCloudModelsCallback;
 import com.consumerphysics.android.sdk.callback.cloud.ScioCloudAnalyzeManyCallback;
 import com.consumerphysics.android.sdk.callback.cloud.ScioCloudSCiOVersionCallback;
 import com.consumerphysics.android.sdk.callback.cloud.ScioCloudUserCallback;
@@ -36,6 +38,7 @@ import com.consumerphysics.android.sdk.model.ScioReading;
 import com.consumerphysics.android.sdk.model.ScioUser;
 import com.consumerphysics.android.sdk.sciosdk.ScioLoginActivity;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -47,6 +50,20 @@ import consumerphysics.com.myscioapplication.utils.StringUtils;
 
 public class ScioCordova extends CordovaPlugin implements IScioDevice {
 
+    private final static int LOGIN_ACTIVITY_RESULT = 1000;
+    // TODO: Put your redirect url here!
+    private static final String REDIRECT_URL = "https://www.consumerphysics.com";
+
+    // TODO: Put your app key here!
+    private static final String APPLICATION_KEY = "4b5ac28b-28f9-4695-b784-b7665dfe3763";
+	
+    // Members
+    private String deviceName;
+    private String deviceAddress;
+    private String username;
+    private String modelId;
+    private String modelName;
+	
     private Map<String, String> devices;
     private DevicesAdapter devicesAdapter;
     private BluetoothAdapter bluetoothAdapter;
@@ -76,6 +93,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
     };
 	
 	private Context context;
+	private Activity mActivity;
 	private CallbackContext callbackContext;
     private ScioCloud scioCloud;
     private ScioDevice scioDevice;
@@ -127,6 +145,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext cbCtx) throws JSONException {
 		context = this.cordova.getActivity().getApplicationContext();
+		mActivity = this.cordova.getActivity();
 		callbackContext = cbCtx;
 		
         if (action.equals("connect")) {
@@ -158,17 +177,33 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 		
         if (action.equals("scan")) {
 
-			devices = new LinkedHashMap<>();
-
-			final List<Device> arrayOfDevices = new ArrayList<>();
-			devicesAdapter = new DevicesAdapter(context, arrayOfDevices);
-
-			bluetoothAdapter = BLEUtils.getBluetoothAdapter(context);
-
-			// Start Scan
-			bluetoothAdapter.startLeScan(leScanCallback);
+			doScan();
             return true;
         }
+		
+		if(action.equals("login")){
+		
+			doLogin();
+			return true;
+		}
+		
+		if(action.equals("getmodels")){
+
+			getScioCloud().getModels(new ScioCloudModelsCallback() {
+				@Override
+				public void onSuccess(List<ScioModel> models) {
+					storeSelectedModels(models);
+					callbackContext.success("Stored models");
+				}
+
+				@Override
+				public void onError(int code, String msg) {
+					Toast.makeText(context, "Error while retrieving models", Toast.LENGTH_SHORT).show();
+					callbackContext.error(msg);
+				}
+			});		
+            return true;
+		}
 		
         return false;
     }
@@ -176,6 +211,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
     private void connect(final String deviceAddress) {
 	
         scioDevice = new ScioDevice(context, deviceAddress);
+        scioCloud = new ScioCloud(context);
 		
         scioDevice.connect(new ScioDeviceConnectHandler() {		
             @Override
@@ -211,6 +247,14 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 	
     @Override
     public void onScioButtonClicked() {
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, "SCiO button was pressed", Toast.LENGTH_SHORT).show();
+
+                doScan();
+            }
+        });
     }
 
     @Override
@@ -245,15 +289,18 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
         devicesAdapter.add(dev);
     }
 	
-    public void doScan(final View view) {
+    public void doScan() {
 
+        modelId = getSharedPrefs().getString(Constants.MODEL_ID, null);
+		
+		Toast.makeText(context, "Set Model To "+modelId, Toast.LENGTH_SHORT).show();	
         if (!isDeviceConnected()) {
             Toast.makeText(context, "Can not scan. SCiO is not connected", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (modelId == null) {
-            Toast.makeText(context, "Can not scan. Model was not selected.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, Constants.MODEL_ID+" Can not scan. Model was not selected.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -262,8 +309,8 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
             return;
         }
 
-        progressDialog = ProgressDialog.show(this, "Please Wait", "Analyzing...", false);
-
+		Toast.makeText(context, "Scanning...", Toast.LENGTH_SHORT).show();				
+		
         getScioDevice().scan(new ScioDeviceScanHandler() {
             @Override
             public void onSuccess(final ScioReading reading) {
@@ -274,19 +321,18 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
                 getScioCloud().analyze(reading, modelsToAnalyze, new ScioCloudAnalyzeManyCallback() {
                     @Override
                     public void onSuccess(final List<ScioModel> models) {
-                        Log.d(TAG, "analyze onSuccess");
-                        runOnUiThread(new Runnable() {
+                        mActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 Toast.makeText(context, "Successful Scan", Toast.LENGTH_SHORT).show();
-								callbackContext.success(models);
+								callbackContext.success(models.toString());
                             }
                         });
                     }
 
                     @Override
                     public void onError(final int code, final String msg) {
-                        runOnUiThread(new Runnable() {
+                        mActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 Toast.makeText(context, "Error while analyzing: " + msg, Toast.LENGTH_SHORT).show();
@@ -299,7 +345,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 
             @Override
             public void onNeedCalibrate() {
-                runOnUiThread(new Runnable() {
+                mActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         Toast.makeText(context, "Can not scan. Calibration is needed", Toast.LENGTH_SHORT).show();
@@ -309,7 +355,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 
             @Override
             public void onError() {
-                runOnUiThread(new Runnable() {
+               mActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         Toast.makeText(context, "Error while scanning", Toast.LENGTH_SHORT).show();
@@ -320,7 +366,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 
             @Override
             public void onTimeout() {
-                runOnUiThread(new Runnable() {
+                mActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         Toast.makeText(context, "Timeout while scanning", Toast.LENGTH_SHORT).show();
@@ -328,5 +374,73 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
                 });
             }
         });
+    }
+	
+    private void storeSelectedModels(final List<ScioModel> models) {
+        SharedPreferences pref = context.getSharedPreferences(Constants.PREF_FILE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = pref.edit();
+
+        String modelIds = "";
+        String modelNames = "";
+        for (ScioModel scioModel : models) {
+            modelNames += scioModel.getName();
+            modelNames += ",";
+            modelIds += scioModel.getId();
+            modelIds += ",";
+        }
+
+        modelIds = modelIds.substring(0, modelIds.length() - 1);
+        modelNames = modelNames.substring(0, modelNames.length() - 1);
+
+        edit.putString(Constants.MODEL_ID, modelIds);
+        edit.putString(Constants.MODEL_NAME, modelNames);
+
+        edit.commit();
+    }
+	
+    private void getScioUser() {
+        getScioCloud().getScioUser(new ScioCloudUserCallback() {
+            @Override
+            public void onSuccess(final ScioUser user) {
+                storeUsername(user.getUsername());
+
+                mActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(context, "Welcome " + user.getFirstName() + " " + user.getLastName(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onError(final int code, final String message) {
+                mActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(context, "Error while getting the user info.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
+	
+    private void storeUsername(final String username) {
+        this.username = username;
+        getSharedPrefs().edit().putString(Constants.USER_NAME, username).commit();
+    }
+	
+    public void doLogin() {
+        if (!isLoggedIn()) {
+            final Intent intent = new Intent(context, com.consumerphysics.android.sdk.sciosdk.ScioLoginActivity.class);
+            intent.putExtra(ScioLoginActivity.INTENT_REDIRECT_URI, REDIRECT_URL);
+            intent.putExtra(ScioLoginActivity.INTENT_APPLICATION_ID, APPLICATION_KEY);
+
+            mActivity.startActivityForResult(intent, LOGIN_ACTIVITY_RESULT);
+        }
+        else {
+			Toast.makeText(context, "Has Access Token", Toast.LENGTH_SHORT).show();
+
+            getScioUser();
+        }
     }
 }
