@@ -25,5 +25,18 @@ module.exports = {
 			"scanble",
 			[]
 		);
+	},
+	scan: function(){
+		cordova.exec(
+			function(winParam) {
+				alert(winParam + "Scio Material Scanned");
+			},
+			function(error) {
+				alert(error + " material scan failed");
+			},
+			"ScioCordova",
+			"scan",
+			[]
+		);
 	}
 };
