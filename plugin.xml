@@ -33,7 +33,9 @@ id="cordova-plugin-scio" version="0.2.3">
 		<source-file src="src/android/com/myscioapplication/ScioCordova.java" target-dir="src/android/com/myscioapplication" /> 
 
         <config-file target="AndroidManifest.xml" parent="/manifest">
-			<activity android:name="com.consumerphysics.android.sdk.sciosdk.ScioLoginActivity" >
+			<activity android:name="com.consumerphysics.android.sdk.sciosdk.ScioLoginActivity" android:label="@string/login_name">
+				<intent-filter>
+				</intent-filter>
 			</activity>
             <uses-permission android:name="android.permission.BLUETOOTH" />
             <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
