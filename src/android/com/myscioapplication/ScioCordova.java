@@ -181,6 +181,12 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
             return true;
         }
 		
+        if (action.equals("calibrate")) {
+
+			doCalibrate();
+            return true;
+        }
+		
 		if(action.equals("login")){
 		
 			doLogin();
@@ -443,4 +449,44 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
             getScioUser();
         }
     }
+	
+    public void doCalibrate() {
+        if (!isDeviceConnected()) {
+            Toast.makeText(context, "Can not calibrate. SCiO is not connected", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        getScioDevice().calibrate(new ScioDeviceCalibrateHandler() {
+            @Override
+            public void onSuccess() {
+                mActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(context, "SCiO was calibrated successfully", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onError() {
+                mActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(context, "Error while calibrating", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onTimeout() {
+                mActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(context, "Timeout while calibrating", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
+
 }

@@ -38,5 +38,44 @@ module.exports = {
 			"scan",
 			[]
 		);
+	},
+	getmodels: function(){
+		cordova.exec(
+			function(winParam) {
+				alert(winParam + " got models");
+			},
+			function(error) {
+				alert(error + " models failed");
+			},
+			"ScioCordova",
+			"getmodels",
+			[]
+		);
+	},
+	calibrate: function(){
+		cordova.exec(
+			function(winParam) {
+				alert(winParam + "calibrated");
+			},
+			function(error) {
+				alert(error + " calibrate failed");
+			},
+			"ScioCordova",
+			"calibrate",
+			[]
+		);
+	},
+	login: function(){
+		cordova.exec(
+			function(winParam) {
+				alert(winParam + " Logged in");
+			},
+			function(error) {
+				alert(error + " login failed");
+			},
+			"ScioCordova",
+			"login",
+			[]
+		);
 	}
 };
