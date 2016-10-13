@@ -36,8 +36,9 @@ import com.consumerphysics.android.sdk.model.ScioBattery;
 import com.consumerphysics.android.sdk.model.ScioModel;
 import com.consumerphysics.android.sdk.model.ScioReading;
 import com.consumerphysics.android.sdk.model.ScioUser;
-import com.consumerphysics.android.sdk.model.attribute.ScioStringAttribute;
+import com.consumerphysics.android.sdk.model.attribute.ScioAttribute;
 import com.consumerphysics.android.sdk.model.attribute.ScioNumericAttribute;
+import com.consumerphysics.android.sdk.model.attribute.ScioStringAttribute;
 import com.consumerphysics.android.sdk.model.attribute.ScioDatetimeAttribute;
 import com.consumerphysics.android.sdk.sciosdk.ScioLoginActivity;
 
@@ -65,6 +66,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
     private String deviceAddress;
     private String username;
     private String modelId;
+    private int modelIndex;
     private String modelName;
 	private ScioModel model;
 	private JSONArray last_args;
@@ -209,6 +211,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 						try{
 							if(models.get(i).getName().equals(last_args.getString(0))){
 								model = models.get(i);
+								modelIndex = i;
 							}
 						}catch(JSONException e){
 						
@@ -348,7 +351,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 	
     public void doScan() {
 
-        modelId = getSharedPrefs().getString(Constants.MODEL_ID, null);
+        modelId = model.getId();
 		
 		Toast.makeText(context, "Set Model To "+modelId, Toast.LENGTH_SHORT).show();	
         if (!isDeviceConnected()) {
@@ -383,7 +386,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
                             public void run() {
                                 Toast.makeText(context, "Successful Scan", Toast.LENGTH_SHORT).show();
 								
-								callbackContext.success(analyzeResults());
+								callbackContext.success(analyzeResults(models));
                             }
                         });
                     }
@@ -541,19 +544,25 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
         });
     }
 
-	public String analyzeResults(){
+	public String analyzeResults(final List<ScioModel> models){
+		Toast.makeText(context, "Getting attributes for model at "+modelIndex, Toast.LENGTH_SHORT).show();
+		List<ScioAttribute> modelAttributes = models.get(0).getAttributes();
+		// model attribute for example
+		ScioAttribute attribute = modelAttributes.get(0);
+		   
+		Toast.makeText(context, "Got attribute "+attribute.getAttributeType()+" for "+models.get(0).getName(), Toast.LENGTH_SHORT).show();
 		final String value;
 		String unit = null;
-		switch (model.getAttributes().get(0).getAttributeType()) {
+		switch (attribute.getAttributeType()) {
 		   case STRING:
-			   value = ((ScioStringAttribute) (model.getAttributes().get(0))).getValue();
+			   value = ((ScioStringAttribute) (attribute)).getValue();
 			   break;
 		   case NUMERIC:
-			   value = String.valueOf(((ScioNumericAttribute) (model.getAttributes().get(0))).getValue());
-			   unit = model.getAttributes().get(0).getUnits();
+			   value = String.valueOf(((ScioNumericAttribute) (attribute)).getValue());
+			   unit = attribute.getUnits();
 			   break;
 		   case DATE_TIME:
-			   value = ((ScioDatetimeAttribute) (model.getAttributes().get(0))).getValue().toString();
+			   value = ((ScioDatetimeAttribute) (attribute)).getValue().toString();
 			   break;
 		   default:
 			   value = "Unknown";
