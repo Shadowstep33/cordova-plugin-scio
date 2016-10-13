@@ -52,6 +52,19 @@ module.exports = {
 			[]
 		);
 	},
+	setmodel: function(name){
+		cordova.exec(
+			function(winParam) {
+				console.log(winParam);
+			},
+			function(error) {
+				alert(error + " models failed");
+			},
+			"ScioCordova",
+			"setmodel",
+			[name]
+		);
+	},
 	calibrate: function(){
 		cordova.exec(
 			function(winParam) {

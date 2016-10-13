@@ -36,6 +36,9 @@ import com.consumerphysics.android.sdk.model.ScioBattery;
 import com.consumerphysics.android.sdk.model.ScioModel;
 import com.consumerphysics.android.sdk.model.ScioReading;
 import com.consumerphysics.android.sdk.model.ScioUser;
+import com.consumerphysics.android.sdk.model.attribute.ScioStringAttribute;
+import com.consumerphysics.android.sdk.model.attribute.ScioNumericAttribute;
+import com.consumerphysics.android.sdk.model.attribute.ScioDatetimeAttribute;
 import com.consumerphysics.android.sdk.sciosdk.ScioLoginActivity;
 
 import java.util.Arrays;
@@ -55,7 +58,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
     private static final String REDIRECT_URL = "https://www.consumerphysics.com";
 
     // TODO: Put your app key here!
-    private static final String APPLICATION_KEY = "4b5ac28b-28f9-4695-b784-b7665dfe3763";
+    private static final String APPLICATION_KEY = "636f2a8e-ae74-41b1-92dd-c79766ce804c";
 	
     // Members
     private String deviceName;
@@ -63,6 +66,8 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
     private String username;
     private String modelId;
     private String modelName;
+	private ScioModel model;
+	private JSONArray last_args;
 	
     private Map<String, String> devices;
     private DevicesAdapter devicesAdapter;
@@ -147,6 +152,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 		context = this.cordova.getActivity().getApplicationContext();
 		mActivity = this.cordova.getActivity();
 		callbackContext = cbCtx;
+		last_args = args;
 		
         if (action.equals("connect")) {
 			/* Get the Preferred Scio Device and Connect */
@@ -193,13 +199,58 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 			return true;
 		}
 		
+		if(action.equals("setmodel")){
+			getScioCloud().getModels(new ScioCloudModelsCallback() {
+				@Override
+				public void onSuccess(List<ScioModel> models) {
+					storeSelectedModels(models);
+					
+					for (int i = 0; i < models.size(); i++) {
+						try{
+							if(models.get(i).getName().equals(last_args.getString(0))){
+								model = models.get(i);
+							}
+						}catch(JSONException e){
+						
+						}
+					}
+					
+					callbackContext.success("Set Model To: "+model.getName());
+				}
+
+				@Override
+				public void onError(int code, String msg) {
+					Toast.makeText(context, "Error while retrieving models", Toast.LENGTH_SHORT).show();
+					callbackContext.error(msg);
+				}
+			});	
+			
+			return true;
+		}
+		
 		if(action.equals("getmodels")){
 
 			getScioCloud().getModels(new ScioCloudModelsCallback() {
 				@Override
 				public void onSuccess(List<ScioModel> models) {
 					storeSelectedModels(models);
-					callbackContext.success("Stored models");
+					
+					//Iterate models and push to JSON to send to cordova
+					JSONArray jsonArray = new JSONArray();
+					
+					for (int i = 0; i < models.size(); i++) {
+						JSONObject item = new JSONObject();
+						
+						try{
+							item.put("name", models.get(i).getName());
+							item.put("index", i);					
+							jsonArray.put(item);
+						}catch(JSONException e){
+						
+						}
+					}
+					
+					callbackContext.success(jsonArray.toString());
 				}
 
 				@Override
@@ -331,7 +382,8 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
                             @Override
                             public void run() {
                                 Toast.makeText(context, "Successful Scan", Toast.LENGTH_SHORT).show();
-								callbackContext.success(models.toString());
+								
+								callbackContext.success(analyzeResults());
                             }
                         });
                     }
@@ -489,4 +541,28 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
         });
     }
 
+	public String analyzeResults(){
+		final String value;
+		String unit = null;
+		switch (model.getAttributes().get(0).getAttributeType()) {
+		   case STRING:
+			   value = ((ScioStringAttribute) (model.getAttributes().get(0))).getValue();
+			   break;
+		   case NUMERIC:
+			   value = String.valueOf(((ScioNumericAttribute) (model.getAttributes().get(0))).getValue());
+			   unit = model.getAttributes().get(0).getUnits();
+			   break;
+		   case DATE_TIME:
+			   value = ((ScioDatetimeAttribute) (model.getAttributes().get(0))).getValue().toString();
+			   break;
+		   default:
+			   value = "Unknown";
+		}
+		
+		if (model.getType().equals(ScioModel.Type.ESTIMATION)) {
+		   return model.getName() + ": " + value + unit;
+		} else {
+		   return model.getName() + ": " + value;
+		}		   
+	}
 }
