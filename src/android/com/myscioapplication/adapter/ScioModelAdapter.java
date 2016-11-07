@@ -76,7 +76,7 @@ public class ScioModelAdapter extends ArrayAdapter<ScioModel> {
                     }
                 }
                 else {
-                    value = value + " (" + String.format("%.2f", Double.valueOf(attribute.getConfidence())) + ")";
+                    value = value + " (" + String.format("%.2f", attribute.getConfidence()) + ")";
                 }
 
                 attributeValue.setText(attributeValue.getText().toString() + value + ", ");
