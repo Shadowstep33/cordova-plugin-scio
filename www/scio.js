@@ -90,5 +90,18 @@ module.exports = {
 			"login",
 			[]
 		);
+	},
+	logout: function(){
+		cordova.exec(
+			function(winParam) {
+				alert(winParam + " logout");
+			},
+			function(error) {
+				alert(error + " logout failed");
+			},
+			"ScioCordova",
+			"logout",
+			[]
+		);
 	}
 };

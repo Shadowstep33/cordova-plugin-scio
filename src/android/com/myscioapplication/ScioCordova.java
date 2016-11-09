@@ -201,6 +201,12 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 			return true;
 		}
 		
+		if(action.equals("logout")){
+		
+			doLogout();
+			return true;
+		}
+		
 		if(action.equals("setmodel")){
 			getScioCloud().getModels(new ScioCloudModelsCallback() {
 				@Override
@@ -502,6 +508,15 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 			Toast.makeText(context, "Has Access Token", Toast.LENGTH_SHORT).show();
 
             getScioUser();
+        }
+    }
+	
+    // Button Actions
+    public void doLogout() {
+        if (getScioCloud() != null) {
+            getScioCloud().deleteAccessToken();
+
+            storeUsername(null);
         }
     }
 	
