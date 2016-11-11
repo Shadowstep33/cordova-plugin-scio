@@ -1,6 +1,14 @@
 /*global cordova*/
-module.exports = {
-	connect: function(){
+
+function ScioCordova(){
+	var self = this;
+	
+	this.cp_models = null;
+	this.models = null;
+	this.devices = [];
+	this.selected_model = "";
+	
+	this.connect: function(){
 		cordova.exec(
 			function(winParam) {
 				alert("Scio Connected");
@@ -13,7 +21,7 @@ module.exports = {
 			[]
 		);
 	},
-	scanBLE: function(){
+	this.scanBLE: function(){
 		cordova.exec(
 			function(winParam) {
 				alert(winParam + "Scio Scanned");
@@ -26,7 +34,7 @@ module.exports = {
 			[]
 		);
 	},
-	scan: function(){
+	this.scan: function(){
 		cordova.exec(
 			function(winParam) {
 				alert(winParam + "Scio Material Scanned");
@@ -39,11 +47,11 @@ module.exports = {
 			[]
 		);
 	},
-	getmodels: function(){
+	this.getmodels: function(){
 		cordova.exec(
 			function(winParam) {
-				alert(winParam + " got models");
 				console.log(winParam);
+				self.models = JSON.parse(winParam);
 			},
 			function(error) {
 				alert(error + " models failed");
@@ -53,11 +61,11 @@ module.exports = {
 			[]
 		);
 	},
-	getcpmodels: function(){
+	this.getcpmodels: function(){
 		cordova.exec(
 			function(winParam) {
-				alert(winParam + " got models");
 				console.log(winParam);
+				self.cp_models = JSON.parse(winParam);
 			},
 			function(error) {
 				alert(error + " models failed");
@@ -67,9 +75,11 @@ module.exports = {
 			[]
 		);
 	},
-	setmodel: function(name){
+	this.setmodel: function(name){
 		cordova.exec(
 			function(winParam) {
+				self.selected_model = name;
+				
 				console.log(winParam);
 			},
 			function(error) {
@@ -80,7 +90,7 @@ module.exports = {
 			[name]
 		);
 	},
-	calibrate: function(){
+	this.calibrate: function(){
 		cordova.exec(
 			function(winParam) {
 				alert(winParam + "calibrated");
@@ -93,7 +103,7 @@ module.exports = {
 			[]
 		);
 	},
-	login: function(){
+	this.login: function(){
 		cordova.exec(
 			function(winParam) {
 				alert(winParam + " Logged in");
@@ -106,7 +116,7 @@ module.exports = {
 			[]
 		);
 	},
-	logout: function(){
+	this.logout: function(){
 		cordova.exec(
 			function(winParam) {
 				alert(winParam + " logout");
@@ -118,5 +128,9 @@ module.exports = {
 			"logout",
 			[]
 		);
-	}
+	}	
+};
+
+module.exports = {
+
 };

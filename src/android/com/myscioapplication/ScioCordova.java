@@ -35,6 +35,7 @@ import com.consumerphysics.android.sdk.callback.device.ScioDeviceCallbackHandler
 import com.consumerphysics.android.sdk.callback.device.ScioDeviceScanHandler;
 import com.consumerphysics.android.sdk.model.ScioBattery;
 import com.consumerphysics.android.sdk.model.ScioModel;
+import com.consumerphysics.android.sdk.model.ScioCPModel;
 import com.consumerphysics.android.sdk.model.ScioReading;
 import com.consumerphysics.android.sdk.model.ScioUser;
 import com.consumerphysics.android.sdk.model.attribute.ScioAttribute;
@@ -57,7 +58,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 
     private final static int LOGIN_ACTIVITY_RESULT = 1000;
     // TODO: Put your redirect url here!
-    private static final String REDIRECT_URL = "https://www.consumerphysics.com";
+    private static final String REDIRECT_URL = "http://monsterisland.chimeracompanygames.com";
 
     // TODO: Put your app key here!
     private static final String APPLICATION_KEY = "636f2a8e-ae74-41b1-92dd-c79766ce804c";
@@ -277,7 +278,6 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 			getScioCloud().getCPModels(new ScioCloudCPModelsCallback() {
 				@Override
 				public void onSuccess(List<ScioCPModel> models) {
-					storeSelectedModels(models);
 					
 					//Iterate models and push to JSON to send to cordova
 					JSONArray jsonArray = new JSONArray();
