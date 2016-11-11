@@ -131,6 +131,4 @@ function ScioCordova(){
 	}	
 };
 
-module.exports = {
-
-};
+module.exports = (new ScioCordova());
