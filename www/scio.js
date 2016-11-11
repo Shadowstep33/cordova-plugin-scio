@@ -43,12 +43,27 @@ module.exports = {
 		cordova.exec(
 			function(winParam) {
 				alert(winParam + " got models");
+				console.log(winParam);
 			},
 			function(error) {
 				alert(error + " models failed");
 			},
 			"ScioCordova",
 			"getmodels",
+			[]
+		);
+	},
+	getcpmodels: function(){
+		cordova.exec(
+			function(winParam) {
+				alert(winParam + " got models");
+				console.log(winParam);
+			},
+			function(error) {
+				alert(error + " models failed");
+			},
+			"ScioCordova",
+			"getcpmodels",
 			[]
 		);
 	},

@@ -25,6 +25,7 @@ import com.consumerphysics.android.sdk.callback.device.ScioDeviceConnectHandler;
 import com.consumerphysics.android.sdk.sciosdk.ScioCloud;
 import com.consumerphysics.android.sdk.sciosdk.ScioDevice;
 import com.consumerphysics.android.sdk.callback.cloud.ScioCloudModelsCallback;
+import com.consumerphysics.android.sdk.callback.cloud.ScioCloudCPModelsCallback;
 import com.consumerphysics.android.sdk.callback.cloud.ScioCloudAnalyzeManyCallback;
 import com.consumerphysics.android.sdk.callback.cloud.ScioCloudSCiOVersionCallback;
 import com.consumerphysics.android.sdk.callback.cloud.ScioCloudUserCallback;
@@ -242,6 +243,40 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 			getScioCloud().getModels(new ScioCloudModelsCallback() {
 				@Override
 				public void onSuccess(List<ScioModel> models) {
+					storeSelectedModels(models);
+					
+					//Iterate models and push to JSON to send to cordova
+					JSONArray jsonArray = new JSONArray();
+					
+					for (int i = 0; i < models.size(); i++) {
+						JSONObject item = new JSONObject();
+						
+						try{
+							item.put("name", models.get(i).getName());
+							item.put("index", i);					
+							jsonArray.put(item);
+						}catch(JSONException e){
+						
+						}
+					}
+					
+					callbackContext.success(jsonArray.toString());
+				}
+
+				@Override
+				public void onError(int code, String msg) {
+					Toast.makeText(context, "Error while retrieving models", Toast.LENGTH_SHORT).show();
+					callbackContext.error(msg);
+				}
+			});		
+            return true;
+		}
+		
+		if(action.equals("getcpmodels")){
+
+			getScioCloud().getCPModels(new ScioCloudCPModelsCallback() {
+				@Override
+				public void onSuccess(List<ScioCPModel> models) {
 					storeSelectedModels(models);
 					
 					//Iterate models and push to JSON to send to cordova
