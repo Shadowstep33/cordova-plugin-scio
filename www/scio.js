@@ -8,7 +8,7 @@ function ScioCordova(){
 	this.devices = [];
 	this.selected_model = "";
 	
-	this.connect: function(){
+	this.connect = function(){
 		cordova.exec(
 			function(winParam) {
 				alert("Scio Connected");
@@ -21,7 +21,7 @@ function ScioCordova(){
 			[]
 		);
 	},
-	this.scanBLE: function(){
+	this.scanBLE = function(){
 		cordova.exec(
 			function(winParam) {
 				alert(winParam + "Scio Scanned");
@@ -34,7 +34,7 @@ function ScioCordova(){
 			[]
 		);
 	},
-	this.scan: function(){
+	this.scan = function(){
 		cordova.exec(
 			function(winParam) {
 				alert(winParam + "Scio Material Scanned");
@@ -47,7 +47,7 @@ function ScioCordova(){
 			[]
 		);
 	},
-	this.getmodels: function(){
+	this.getmodels = function(){
 		cordova.exec(
 			function(winParam) {
 				console.log(winParam);
@@ -61,7 +61,7 @@ function ScioCordova(){
 			[]
 		);
 	},
-	this.getcpmodels: function(){
+	this.getcpmodels = function(){
 		cordova.exec(
 			function(winParam) {
 				console.log(winParam);
@@ -75,7 +75,7 @@ function ScioCordova(){
 			[]
 		);
 	},
-	this.setmodel: function(name){
+	this.setmodel = function(name){
 		cordova.exec(
 			function(winParam) {
 				self.selected_model = name;
@@ -90,7 +90,7 @@ function ScioCordova(){
 			[name]
 		);
 	},
-	this.calibrate: function(){
+	this.calibrate = function(){
 		cordova.exec(
 			function(winParam) {
 				alert(winParam + "calibrated");
@@ -103,7 +103,7 @@ function ScioCordova(){
 			[]
 		);
 	},
-	this.login: function(){
+	this.login = function(){
 		cordova.exec(
 			function(winParam) {
 				alert(winParam + " Logged in");
@@ -116,7 +116,7 @@ function ScioCordova(){
 			[]
 		);
 	},
-	this.logout: function(){
+	this.logout = function(){
 		cordova.exec(
 			function(winParam) {
 				alert(winParam + " logout");
