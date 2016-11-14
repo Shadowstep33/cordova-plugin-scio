@@ -7,6 +7,7 @@ function ScioCordova(){
 	this.models = null;
 	this.devices = [];
 	this.selected_model = "";
+	this.last_result = "";
 	
 	this.connect = function(){
 		cordova.exec(
@@ -21,10 +22,14 @@ function ScioCordova(){
 			[]
 		);
 	},
-	this.scanBLE = function(){
+	this.scanBLE = function(cb){
 		cordova.exec(
 			function(winParam) {
 				alert(winParam + "Scio Scanned");
+				self.devices = winParam;
+				
+				if(cb)
+					cb(winParam);
 			},
 			function(error) {
 				alert(error + " scan failed");
@@ -37,7 +42,11 @@ function ScioCordova(){
 	this.scan = function(){
 		cordova.exec(
 			function(winParam) {
-				alert(winParam + "Scio Material Scanned");
+				console.log(winParam);
+				
+				self.last_result = winParam;
+				if(cb)
+					cb(winParam);
 			},
 			function(error) {
 				alert(error + " material scan failed");
