@@ -9,10 +9,12 @@ function ScioCordova(){
 	this.selected_model = "";
 	this.last_result = "";
 	
-	this.connect = function(){
+	this.connect = function(cb){
 		cordova.exec(
 			function(winParam) {
-				alert("Scio Connected");
+				if(typeof cb != "undefined")
+				if(cb)
+					cb(winParam);
 			},
 			function(error) {
 				alert(error + " Scio not connected");
@@ -28,6 +30,7 @@ function ScioCordova(){
 				alert(winParam + "Scio Scanned");
 				self.devices = winParam;
 				
+				if(typeof cb != "undefined")
 				if(cb)
 					cb(winParam);
 			},
@@ -39,12 +42,13 @@ function ScioCordova(){
 			[]
 		);
 	},
-	this.scan = function(){
+	this.scan = function(cb){
 		cordova.exec(
 			function(winParam) {
 				console.log(winParam);
 				
 				self.last_result = winParam;
+				if(typeof cb != "undefined")
 				if(cb)
 					cb(winParam);
 			},
