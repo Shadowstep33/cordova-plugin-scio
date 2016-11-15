@@ -239,6 +239,25 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 			return true;
 		}
 		
+		if(action.equals("setmodels")){
+			List<String> input = Arrays.asList(last_args.getString(0).split(","));
+			
+			for (int i = 0; i < input.size(); i++) {
+				try{
+					if(i > 0)
+						modelId = modelId + ",";
+					
+					modelId = modelId + models.get(input.get(i)).getName();
+				}catch(JSONException e){
+				
+				}
+			}
+			
+			callbackContext.success("Set Model To: "+modelId);
+
+			return true;
+		}
+		
 		if(action.equals("getmodels")){
 
 			getScioCloud().getModels(new ScioCloudModelsCallback() {
@@ -392,7 +411,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 	
     public void doScan() {
 
-        modelId = model.getId();
+        // modelId = model.getId();
 		
 		Toast.makeText(context, "Set Model To "+modelId, Toast.LENGTH_SHORT).show();	
         if (!isDeviceConnected()) {
@@ -624,4 +643,5 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 		   return model.getName() + ": " + value;
 		}		   
 	}
+
 }

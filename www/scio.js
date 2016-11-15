@@ -8,6 +8,7 @@ function ScioCordova(){
 	this.devices = [];
 	this.selected_model = "";
 	this.last_result = "";
+	this.collections = {};
 	
 	this.connect = function(cb){
 		cordova.exec(
@@ -65,6 +66,24 @@ function ScioCordova(){
 			function(winParam) {
 				console.log(winParam);
 				self.models = JSON.parse(winParam);
+				
+				//Group models into "collections"
+				for(var m in self.models){
+					var model = self.models[m];
+					var split = model.name.split("_");
+					
+					if(typeof self.collections[split[0]] == "undefined")
+						self.collections[split[0]] = {
+							models: [model.index],
+							name: split[0]
+						};
+					else
+						self.collections[split[0]].models.push(model.index);
+				}
+				
+				if(typeof cb != "undefined")
+				if(cb)
+					cb();
 			},
 			function(error) {
 				alert(error + " models failed");
@@ -74,11 +93,29 @@ function ScioCordova(){
 			[]
 		);
 	},
-	this.getcpmodels = function(){
+	this.getcpmodels = function(cb){
 		cordova.exec(
 			function(winParam) {
 				console.log(winParam);
 				self.cp_models = JSON.parse(winParam);
+				
+				//Group models into "collections"
+				for(var m in self.models){
+					var model = self.models[m];
+					var split = model.name.split("_");
+					
+					if(typeof self.collections[split[0]] == "undefined")
+						self.collections[split[0]] = {
+							models: [model.index],
+							name: split[0]
+						};
+					else
+						self.collections[split[0]].models.push(model.index);
+				}
+				
+				if(typeof cb != "undefined")
+				if(cb)
+					cb();
 			},
 			function(error) {
 				alert(error + " models failed");
@@ -101,6 +138,25 @@ function ScioCordova(){
 			"ScioCordova",
 			"setmodel",
 			[name]
+		);
+	},
+	this.setmodels = function(models, cb){
+		cordova.exec(
+			function(winParam) {
+				//self.selected_model = name;
+				
+				console.log(winParam);
+				
+				if(typeof cb != "undefined")
+				if(cb)
+					cb();
+			},
+			function(error) {
+				alert(error + " set models failed");
+			},
+			"ScioCordova",
+			"setmodels",
+			[models]
 		);
 	},
 	this.calibrate = function(){
