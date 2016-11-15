@@ -240,17 +240,17 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 		}
 		
 		if(action.equals("setmodels")){
+			SharedPreferences pref = context.getSharedPreferences(Constants.PREF_FILE, Context.MODE_PRIVATE);
+			String mIDs = pref.getString(Constants.MODEL_ID, null);
 			List<String> input = Arrays.asList(last_args.getString(0).split(","));
+			List<String> mNames = Arrays.asList(mIDs.split(","));
 			
+			modelId = "";
 			for (int i = 0; i < input.size(); i++) {
-				try{
-					if(i > 0)
-						modelId = modelId + ",";
-					
-					modelId = modelId + models.get(input.get(i)).getName();
-				}catch(JSONException e){
+				if(i > 0)
+					modelId = modelId + ",";
 				
-				}
+				modelId = modelId + mNames.get(Integer.parseInt(input.get(i)));
 			}
 			
 			callbackContext.success("Set Model To: "+modelId);
@@ -297,6 +297,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 			getScioCloud().getCPModels(new ScioCloudCPModelsCallback() {
 				@Override
 				public void onSuccess(List<ScioCPModel> models) {
+					storeSelectedCPModels(models);
 					
 					//Iterate models and push to JSON to send to cordova
 					JSONArray jsonArray = new JSONArray();
@@ -504,6 +505,27 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
         String modelIds = "";
         String modelNames = "";
         for (ScioModel scioModel : models) {
+            modelNames += scioModel.getName();
+            modelNames += ",";
+            modelIds += scioModel.getId();
+            modelIds += ",";
+        }
+
+        modelIds = modelIds.substring(0, modelIds.length() - 1);
+        modelNames = modelNames.substring(0, modelNames.length() - 1);
+
+        edit.putString(Constants.MODEL_ID, modelIds);
+        edit.putString(Constants.MODEL_NAME, modelNames);
+
+        edit.commit();
+    }
+    private void storeSelectedCPModels(final List<ScioCPModel> models) {
+        SharedPreferences pref = context.getSharedPreferences(Constants.PREF_FILE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = pref.edit();
+
+        String modelIds = "";
+        String modelNames = "";
+        for (ScioCPModel scioModel : models) {
             modelNames += scioModel.getName();
             modelNames += ",";
             modelIds += scioModel.getId();
