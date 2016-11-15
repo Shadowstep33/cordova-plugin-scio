@@ -91,7 +91,7 @@ function ScioCordova(){
 	this.setmodel = function(name){
 		cordova.exec(
 			function(winParam) {
-				self.selected_model = name;
+				//self.selected_model = name;
 				
 				console.log(winParam);
 			},
