@@ -325,6 +325,11 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 			});		
             return true;
 		}
+		if(action.equals("isconnected")){
+
+			callbackContext.success(isDeviceConnected());
+            return true;
+		}
 		
         return false;
     }
@@ -412,7 +417,8 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 	
     public void doScan() {
 
-        // modelId = model.getId();
+		SharedPreferences pref = context.getSharedPreferences(Constants.PREF_FILE, Context.MODE_PRIVATE);
+		modelId = pref.getString(Constants.MODEL_ID, null);
 		
 		Toast.makeText(context, "Set Model To "+modelId, Toast.LENGTH_SHORT).show();	
         if (!isDeviceConnected()) {
@@ -430,7 +436,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
             return;
         }
 
-		Toast.makeText(context, "Scanning...", Toast.LENGTH_SHORT).show();				
+		Toast.makeText(context, "Scanning..."+modelId, Toast.LENGTH_SHORT).show();				
 		
         getScioDevice().scan(new ScioDeviceScanHandler() {
             @Override
@@ -636,34 +642,71 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
     }
 
 	public String analyzeResults(final List<ScioModel> models){
-		Toast.makeText(context, "Getting attributes for model at "+modelIndex, Toast.LENGTH_SHORT).show();
-		List<ScioAttribute> modelAttributes = models.get(0).getAttributes();
-		// model attribute for example
-		ScioAttribute attribute = modelAttributes.get(0);
-		   
-		Toast.makeText(context, "Got attribute "+attribute.getAttributeType()+" for "+models.get(0).getName(), Toast.LENGTH_SHORT).show();
-		final String value;
-		String unit = null;
-		switch (attribute.getAttributeType()) {
-		   case STRING:
-			   value = ((ScioStringAttribute) (attribute)).getValue();
-			   break;
-		   case NUMERIC:
-			   value = String.valueOf(((ScioNumericAttribute) (attribute)).getValue());
-			   unit = attribute.getUnits();
-			   break;
-		   case DATE_TIME:
-			   value = ((ScioDatetimeAttribute) (attribute)).getValue().toString();
-			   break;
-		   default:
-			   value = "Unknown";
-		}
+		Toast.makeText(context, "Getting attributes for model at "+modelIndex + " of "+models.size(), Toast.LENGTH_SHORT).show();
 		
-		if (model.getType().equals(ScioModel.Type.ESTIMATION)) {
-		   return model.getName() + ": " + value + unit;
-		} else {
-		   return model.getName() + ": " + value;
-		}		   
+		String retVal = "";
+		
+		for (ScioModel model : models) {
+			List<ScioAttribute> modelAttributes = model.getAttributes();
+			// model attribute for example
+
+			String value = "";
+			String unit = null;
+
+			if (model.getAttributes() != null && !model.getAttributes().isEmpty()) {
+				for (ScioAttribute attribute : model.getAttributes()) {
+
+					Toast.makeText(context, "Got attribute "+attribute.getAttributeType()+" for "+model.getName(), Toast.LENGTH_SHORT).show();
+					
+					/**
+					 * Classification model will return a STRING value.
+					 * Estimation will return the NUMERIC value.
+					 */
+					switch (attribute.getAttributeType()) {
+						case STRING:
+							value = ((ScioStringAttribute) (attribute)).getValue();
+							break;
+						case NUMERIC:
+							value = String.valueOf(((ScioNumericAttribute) (attribute)).getValue());
+							unit = attribute.getUnits();
+							break;
+						case DATE_TIME:
+							value = ((ScioDatetimeAttribute) (attribute)).getValue().toString();
+							break;
+						default:
+							continue;
+					}
+
+					if (!isNull(attribute.getLabel())) {
+						value = attribute.getLabel() + " " + value;
+					}
+
+					if (model.getType().equals(ScioModel.Type.ESTIMATION)) {
+						if (isNull(unit)) {
+						}
+						else {
+							value = value + unit;
+						}
+					}
+					else {
+						value = value + " (" + String.format("%.2f", attribute.getConfidence()) + ")";
+					}
+
+				}
+			}
+			else {
+				value = "N/A";
+			}
+			
+		   retVal = retVal +";"+ model.getName() + ": " + value;
+
+		}	
+
+        retVal = retVal.substring(0, retVal.length() - 1);
+		return retVal;
 	}
 
+    private boolean isNull(final String value) {
+        return value == null || value.equals("null");
+    }
 }

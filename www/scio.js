@@ -10,7 +10,7 @@ function ScioCordova(){
 	this.last_result = "";
 	this.collections = {};
 	
-	this.connect = function(cb){
+	this.connect = function(cb, err){
 		cordova.exec(
 			function(winParam) {
 				if(typeof cb != "undefined")
@@ -18,14 +18,16 @@ function ScioCordova(){
 					cb(winParam);
 			},
 			function(error) {
-				alert(error + " Scio not connected");
+				if(typeof err != "undefined")
+				if(err)
+					err(error);
 			},
 			"ScioCordova",
 			"connect",
 			[]
 		);
 	},
-	this.scanBLE = function(cb){
+	this.scanBLE = function(cb, err){
 		cordova.exec(
 			function(winParam) {
 				alert(winParam + "Scio Scanned");
@@ -36,14 +38,16 @@ function ScioCordova(){
 					cb(winParam);
 			},
 			function(error) {
-				alert(error + " scan failed");
+				if(typeof err != "undefined")
+				if(err)
+					err(error);
 			},
 			"ScioCordova",
 			"scanble",
 			[]
 		);
 	},
-	this.scan = function(cb){
+	this.scan = function(cb, err){
 		cordova.exec(
 			function(winParam) {
 				console.log(winParam);
@@ -54,14 +58,16 @@ function ScioCordova(){
 					cb(winParam);
 			},
 			function(error) {
-				alert(error + " material scan failed");
+				if(typeof err != "undefined")
+				if(err)
+					err(error);
 			},
 			"ScioCordova",
 			"scan",
 			[]
 		);
 	},
-	this.getmodels = function(){
+	this.getmodels = function(cb, err){
 		cordova.exec(
 			function(winParam) {
 				console.log(winParam);
@@ -86,22 +92,24 @@ function ScioCordova(){
 					cb();
 			},
 			function(error) {
-				alert(error + " models failed");
+				if(typeof err != "undefined")
+				if(err)
+					err(error);
 			},
 			"ScioCordova",
 			"getmodels",
 			[]
 		);
 	},
-	this.getcpmodels = function(cb){
+	this.getcpmodels = function(cb, err){
 		cordova.exec(
 			function(winParam) {
 				console.log(winParam);
 				self.cp_models = JSON.parse(winParam);
 				
 				//Group models into "collections"
-				for(var m in self.models){
-					var model = self.models[m];
+				for(var m in self.cp_models){
+					var model = self.cp_models[m];
 					var split = model.name.split("_");
 					
 					if(typeof self.collections[split[0]] == "undefined")
@@ -118,14 +126,16 @@ function ScioCordova(){
 					cb();
 			},
 			function(error) {
-				alert(error + " models failed");
+				if(typeof err != "undefined")
+				if(err)
+					err(error);
 			},
 			"ScioCordova",
 			"getcpmodels",
 			[]
 		);
 	},
-	this.setmodel = function(name){
+	this.setmodel = function(name, err){
 		cordova.exec(
 			function(winParam) {
 				//self.selected_model = name;
@@ -133,71 +143,101 @@ function ScioCordova(){
 				console.log(winParam);
 			},
 			function(error) {
-				alert(error + " models failed");
+				if(typeof err != "undefined")
+				if(err)
+					err(error);
 			},
 			"ScioCordova",
 			"setmodel",
 			[name]
 		);
 	},
-	this.setmodels = function(models, cb){
+	this.setmodels = function(models, cb, err){
 		cordova.exec(
 			function(winParam) {
 				//self.selected_model = name;
-				
-				console.log(winParam);
-				
 				if(typeof cb != "undefined")
 				if(cb)
 					cb();
 			},
 			function(error) {
-				alert(error + " set models failed");
+				if(typeof err != "undefined")
+				if(err)
+					err(error);
 			},
 			"ScioCordova",
 			"setmodels",
 			[models]
 		);
 	},
-	this.calibrate = function(){
+	this.calibrate = function(cb, err){
 		cordova.exec(
 			function(winParam) {
-				alert(winParam + "calibrated");
+				if(typeof cb != "undefined")
+				if(cb)
+					cb();
 			},
 			function(error) {
-				alert(error + " calibrate failed");
+				if(typeof err != "undefined")
+				if(err)
+					err(error);
 			},
 			"ScioCordova",
 			"calibrate",
 			[]
 		);
 	},
-	this.login = function(){
+	this.login = function(cb, err){
 		cordova.exec(
 			function(winParam) {
-				alert(winParam + " Logged in");
+				if(typeof cb != "undefined")
+				if(cb)
+					cb();
 			},
 			function(error) {
-				alert(error + " login failed");
+				if(typeof err != "undefined")
+				if(err)
+					err(error);
 			},
 			"ScioCordova",
 			"login",
 			[]
 		);
 	},
-	this.logout = function(){
+	this.logout = function(cb, err){
 		cordova.exec(
 			function(winParam) {
-				alert(winParam + " logout");
+				if(typeof cb != "undefined")
+				if(cb)
+					cb();
 			},
 			function(error) {
-				alert(error + " logout failed");
+				if(typeof err != "undefined")
+				if(err)
+					err(error);
 			},
 			"ScioCordova",
 			"logout",
 			[]
 		);
-	}	
+	},
+	this.isConnected = function(cb, err){
+		cordova.exec(
+			function(winParam) {
+				if(typeof cb != "undefined")
+				if(cb)
+					cb();
+			},
+			function(error) {
+				if(typeof err != "undefined")
+				if(err)
+					err(error);
+			},
+			"ScioCordova",
+			"logout",
+			[]
+		);
+	}
 };
 
 module.exports = (new ScioCordova());
