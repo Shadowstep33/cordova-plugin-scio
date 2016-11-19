@@ -234,7 +234,7 @@ function ScioCordova(){
 					err(error);
 			},
 			"ScioCordova",
-			"logout",
+			"isconnected",
 			[]
 		);
 	}
