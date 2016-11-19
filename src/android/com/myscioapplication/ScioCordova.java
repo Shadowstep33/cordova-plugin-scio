@@ -187,7 +187,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 		
         if (action.equals("scan")) {
 
-			doScan();
+			doScan(callbackContext);
             return true;
         }
 		
@@ -374,14 +374,14 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 	
     @Override
     public void onScioButtonClicked() {
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(context, "SCiO button was pressed", Toast.LENGTH_SHORT).show();
+        // mActivity.runOnUiThread(new Runnable() {
+            // @Override
+            // public void run() {
+                // Toast.makeText(context, "SCiO button was pressed", Toast.LENGTH_SHORT).show();
 
-                doScan();
-            }
-        });
+                // doScan();
+            // }
+        // });
     }
 
     @Override
@@ -416,7 +416,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
         devicesAdapter.add(dev);
     }
 	
-    public void doScan() {
+    public void doScan(CallbackContext callbackContext) {
 
 		SharedPreferences pref = context.getSharedPreferences(Constants.PREF_FILE, Context.MODE_PRIVATE);
 		modelId = pref.getString(Constants.MODEL_ID, null);
@@ -459,7 +459,6 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 								callbackContext.success(results);
                             }
                         });
-						callbackContext.success("lol:dumb");
                     }
 
                     @Override
