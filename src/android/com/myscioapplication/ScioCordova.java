@@ -455,9 +455,11 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 								
 								String results = analyzeResults(models);
 								
+                                Toast.makeText(context, "Successful Scan: "+results, Toast.LENGTH_SHORT).show();
 								callbackContext.success(results);
                             }
                         });
+						callbackContext.success("lol:dumb");
                     }
 
                     @Override
@@ -466,6 +468,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
                             @Override
                             public void run() {
                                 Toast.makeText(context, "Error while analyzing: " + msg, Toast.LENGTH_SHORT).show();
+								callbackContext.error("Error while analyzing: " + msg);
                             }
                         });
 
@@ -644,8 +647,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
     }
 
 	public String analyzeResults(final List<ScioModel> models){
-		Toast.makeText(context, "Getting attributes for model at "+modelIndex + " of "+models.size(), Toast.LENGTH_SHORT).show();
-		
+
 		String retVal = "";
 		
 		for (ScioModel model : models) {
@@ -702,11 +704,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 
 		}	
 
-		Toast.makeText(context, "Results "+retVal, Toast.LENGTH_SHORT).show();
-		
         retVal = retVal.substring(0, retVal.length() - 1);
-					
-		Toast.makeText(context, "Final Results "+retVal, Toast.LENGTH_SHORT).show();
 					
 		return retVal;
 	}
