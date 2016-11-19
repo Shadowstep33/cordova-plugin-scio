@@ -82,7 +82,9 @@ function ScioCordova(){
 							name: split[0]
 						};
 					else
-						self.collections[split[0]].models.push(model.index);
+						self.collections[split[0]].models = [];
+						
+					self.collections[split[0]].models.push(model.index);
 				}
 				
 				if(typeof cb != "undefined")

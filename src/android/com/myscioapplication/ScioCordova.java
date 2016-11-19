@@ -453,7 +453,9 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
                             public void run() {
                                 Toast.makeText(context, "Successful Scan", Toast.LENGTH_SHORT).show();
 								
-								callbackContext.success(analyzeResults(models));
+								String results = analyzeResults(models);
+								
+								callbackContext.success(results);
                             }
                         });
                     }
@@ -656,8 +658,6 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 			if (model.getAttributes() != null && !model.getAttributes().isEmpty()) {
 				for (ScioAttribute attribute : model.getAttributes()) {
 
-					Toast.makeText(context, "Got attribute "+attribute.getAttributeType()+" for "+model.getName(), Toast.LENGTH_SHORT).show();
-					
 					/**
 					 * Classification model will return a STRING value.
 					 * Estimation will return the NUMERIC value.
