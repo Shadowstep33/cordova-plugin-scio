@@ -88,7 +88,7 @@ function ScioCordova(){
 				
 				if(typeof cb != "undefined")
 				if(cb)
-					cb();
+					cb(winParam);
 			},
 			function(error) {
 				if(typeof err != "undefined")
@@ -122,7 +122,7 @@ function ScioCordova(){
 				
 				if(typeof cb != "undefined")
 				if(cb)
-					cb();
+					cb(winParam);
 			},
 			function(error) {
 				if(typeof err != "undefined")
@@ -158,7 +158,7 @@ function ScioCordova(){
 				console.log("Set models to "+models);
 				if(typeof cb != "undefined")
 				if(cb)
-					cb();
+					cb(winParam);
 			},
 			function(error) {
 				if(typeof err != "undefined")
@@ -175,7 +175,7 @@ function ScioCordova(){
 			function(winParam) {
 				if(typeof cb != "undefined")
 				if(cb)
-					cb();
+					cb(winParam);
 			},
 			function(error) {
 				if(typeof err != "undefined")
@@ -192,7 +192,7 @@ function ScioCordova(){
 			function(winParam) {
 				if(typeof cb != "undefined")
 				if(cb)
-					cb();
+					cb(winParam);
 			},
 			function(error) {
 				if(typeof err != "undefined")
@@ -209,7 +209,7 @@ function ScioCordova(){
 			function(winParam) {
 				if(typeof cb != "undefined")
 				if(cb)
-					cb();
+					cb(winParam);
 			},
 			function(error) {
 				if(typeof err != "undefined")
@@ -226,7 +226,7 @@ function ScioCordova(){
 			function(winParam) {
 				if(typeof cb != "undefined")
 				if(cb)
-					cb();
+					cb(winParam);
 			},
 			function(error) {
 				if(typeof err != "undefined")
