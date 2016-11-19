@@ -1,5 +1,3 @@
-cordova.define("cordova-plugin-scio.scio", function(require, exports, module) {
-/*global cordova*/
 
 function ScioCordova(){
 	var self = this;
@@ -157,6 +155,7 @@ function ScioCordova(){
 		cordova.exec(
 			function(winParam) {
 				//self.selected_model = name;
+				console.log("Set models to "+models);
 				if(typeof cb != "undefined")
 				if(cb)
 					cb();
@@ -242,5 +241,3 @@ function ScioCordova(){
 };
 
 module.exports = (new ScioCordova());
-
-});
