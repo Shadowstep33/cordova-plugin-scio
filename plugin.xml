@@ -14,15 +14,6 @@ id="cordova-plugin-scio" version="0.2.3">
 		<framework src="src/android/com/myscioapplication/scio-sdk.gradle" custom="true" type="gradleReference" />
 
 		<resource-file src="aar/SCiOSDK_Android.aar" target="libs/SCiOSDK_Android.aar" />
-		
-        <source-file src="src/android/com/myscioapplication/config/Constants.java"
-            target-dir="src/com/myscioapplication"/>
-			
-        <source-file src="src/android/com/myscioapplication/interfaces/IScioDevice.java"
-            target-dir="src/com/myscioapplication"/>
-			
-        <source-file src="src/android/com/myscioapplication/utils/StringUtils.java"
-            target-dir="src/com/myscioapplication"/>
 			
         <config-file target="res/xml/config.xml" parent="/widget">
             <feature name="ScioCordova">
