@@ -416,7 +416,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
         devicesAdapter.add(dev);
     }
 	
-    public void doScan(CallbackContext callbackContext) {
+    public void doScan(final CallbackContext cbCtx) {
 
 		SharedPreferences pref = context.getSharedPreferences(Constants.PREF_FILE, Context.MODE_PRIVATE);
 		modelId = pref.getString(Constants.MODEL_ID, null);
@@ -455,8 +455,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 								
 								String results = analyzeResults(models);
 								
-                                Toast.makeText(context, "Successful Scan: "+results, Toast.LENGTH_SHORT).show();
-								callbackContext.success(results);
+								cbCtx.success(results);
                             }
                         });
                     }
@@ -467,7 +466,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
                             @Override
                             public void run() {
                                 Toast.makeText(context, "Error while analyzing: " + msg, Toast.LENGTH_SHORT).show();
-								callbackContext.error("Error while analyzing: " + msg);
+								cbCtx.error("Error while analyzing: " + msg);
                             }
                         });
 
