@@ -29,7 +29,6 @@ function ScioCordova(){
 	this.scanBLE = function(cb, err){
 		cordova.exec(
 			function(winParam) {
-				alert(winParam + "Scio Scanned");
 				self.devices = winParam;
 				
 				if(typeof cb != "undefined")

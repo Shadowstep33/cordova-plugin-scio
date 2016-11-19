@@ -240,19 +240,17 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 		}
 		
 		if(action.equals("setmodels")){
-			Toast.makeText(context, last_args.getString(0), Toast.LENGTH_SHORT).show();
 			SharedPreferences pref = context.getSharedPreferences(Constants.PREF_FILE, Context.MODE_PRIVATE);
 			String mIDs = pref.getString(Constants.MODEL_ID, null);
 			List<String> input = Arrays.asList(last_args.getString(0).split(","));
 			List<String> mNames = Arrays.asList(mIDs.split(","));
 			
 			modelId = "";
-			Toast.makeText(context, "setting models "+last_args.getString(0), Toast.LENGTH_SHORT).show();
+			
 			for (int i = 0; i < input.size(); i++) {
 				if(i > 0)
 					modelId = modelId + ",";
 				
-				Toast.makeText(context, "id setting models "+mNames.get(Integer.parseInt(input.get(i))), Toast.LENGTH_SHORT).show();
 				modelId = modelId + mNames.get(Integer.parseInt(input.get(i)));
 			}
 			
@@ -422,8 +420,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 
 		SharedPreferences pref = context.getSharedPreferences(Constants.PREF_FILE, Context.MODE_PRIVATE);
 		modelId = pref.getString(Constants.MODEL_ID, null);
-		
-		Toast.makeText(context, "Set Model To "+modelId, Toast.LENGTH_SHORT).show();	
+			
         if (!isDeviceConnected()) {
             Toast.makeText(context, "Can not scan. SCiO is not connected", Toast.LENGTH_SHORT).show();
             return;
@@ -439,7 +436,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
             return;
         }
 
-		Toast.makeText(context, "Scanning..."+modelId, Toast.LENGTH_SHORT).show();				
+		Toast.makeText(context, "Scanning...", Toast.LENGTH_SHORT).show();				
 		
         getScioDevice().scan(new ScioDeviceScanHandler() {
             @Override
@@ -705,7 +702,12 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 
 		}	
 
+		Toast.makeText(context, "Results "+retVal, Toast.LENGTH_SHORT).show();
+		
         retVal = retVal.substring(0, retVal.length() - 1);
+					
+		Toast.makeText(context, "Final Results "+retVal, Toast.LENGTH_SHORT).show();
+					
 		return retVal;
 	}
 
