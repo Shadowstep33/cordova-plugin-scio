@@ -71,6 +71,11 @@ function ScioCordova(){
 				console.log(winParam);
 				self.models = JSON.parse(winParam);
 				
+				//Reset models arrays
+				for(var c in self.collections){
+					self.collections[c].models = [];
+				}
+				
 				//Group models into "collections"
 				for(var m in self.models){
 					var model = self.models[m];
@@ -81,8 +86,7 @@ function ScioCordova(){
 							models: [model.index],
 							name: split[0]
 						};
-					else
-						self.collections[split[0]].models = [];
+						
 						
 					self.collections[split[0]].models.push(model.index);
 				}
