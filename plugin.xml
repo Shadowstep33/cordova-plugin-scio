@@ -13,7 +13,7 @@ id="cordova-plugin-scio" version="0.2.3">
 
 		<framework src="src/android/com/myscioapplication/scio-sdk.gradle" custom="true" type="gradleReference" />
 
-		<resource-file src="SCiOSDK_Android.aar" target="libs/SCiOSDK_Android.aar" />
+		<resource-file src="aar/SCiOSDK_Android.aar" target="libs/SCiOSDK_Android.aar" />
 		
 		<source-file src="src/android/com/myscioapplication/config/Constants.java"
 		target-dir="src/com/myscioapplication"/>
