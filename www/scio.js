@@ -29,7 +29,6 @@ function ScioCordova(){
 	this.scanBLE = function(cb, err){
 		cordova.exec(
 			function(winParam) {
-				alert(winParam + "Scio Scanned");
 				self.devices = winParam;
 				
 				if(typeof cb != "undefined")
@@ -70,25 +69,38 @@ function ScioCordova(){
 		cordova.exec(
 			function(winParam) {
 				console.log(winParam);
-				self.models = JSON.parse(winParam);
 				
-				//Group models into "collections"
-				for(var m in self.models){
-					var model = self.models[m];
-					var split = model.name.split("_");
+				try{
+				
+					self.models = JSON.parse(winParam);
 					
-					if(typeof self.collections[split[0]] == "undefined")
-						self.collections[split[0]] = {
-							models: [model.index],
-							name: split[0]
-						};
-					else
+					//Reset models arrays
+					for(var c in self.collections){
+						self.collections[c].models = [];
+					}
+					
+					//Group models into "collections"
+					for(var m in self.models){
+						var model = self.models[m];
+						var split = model.name.split("_");
+						
+						if(typeof self.collections[split[0]] == "undefined")
+							self.collections[split[0]] = {
+								models: [model.index],
+								name: split[0]
+							};
+							
+							
 						self.collections[split[0]].models.push(model.index);
+					}
+					
+				}catch(e){
+				
 				}
 				
 				if(typeof cb != "undefined")
 				if(cb)
-					cb();
+					cb(winParam);
 			},
 			function(error) {
 				if(typeof err != "undefined")
@@ -104,25 +116,32 @@ function ScioCordova(){
 		cordova.exec(
 			function(winParam) {
 				console.log(winParam);
-				self.cp_models = JSON.parse(winParam);
 				
-				//Group models into "collections"
-				for(var m in self.cp_models){
-					var model = self.cp_models[m];
-					var split = model.name.split("_");
+				try{
+				
+					self.cp_models = JSON.parse(winParam);
 					
-					if(typeof self.collections[split[0]] == "undefined")
-						self.collections[split[0]] = {
-							models: [model.index],
-							name: split[0]
-						};
-					else
-						self.collections[split[0]].models.push(model.index);
+					//Group models into "collections"
+					for(var m in self.cp_models){
+						var model = self.cp_models[m];
+						var split = model.name.split("_");
+						
+						if(typeof self.collections[split[0]] == "undefined")
+							self.collections[split[0]] = {
+								models: [model.index],
+								name: split[0]
+							};
+						else
+							self.collections[split[0]].models.push(model.index);
+					}
+					
+				}catch(e){
+					
 				}
 				
 				if(typeof cb != "undefined")
 				if(cb)
-					cb();
+					cb(winParam);
 			},
 			function(error) {
 				if(typeof err != "undefined")
@@ -158,7 +177,7 @@ function ScioCordova(){
 				console.log("Set models to "+models);
 				if(typeof cb != "undefined")
 				if(cb)
-					cb();
+					cb(winParam);
 			},
 			function(error) {
 				if(typeof err != "undefined")
@@ -175,7 +194,7 @@ function ScioCordova(){
 			function(winParam) {
 				if(typeof cb != "undefined")
 				if(cb)
-					cb();
+					cb(winParam);
 			},
 			function(error) {
 				if(typeof err != "undefined")
@@ -192,7 +211,7 @@ function ScioCordova(){
 			function(winParam) {
 				if(typeof cb != "undefined")
 				if(cb)
-					cb();
+					cb(winParam);
 			},
 			function(error) {
 				if(typeof err != "undefined")
@@ -209,7 +228,7 @@ function ScioCordova(){
 			function(winParam) {
 				if(typeof cb != "undefined")
 				if(cb)
-					cb();
+					cb(winParam);
 			},
 			function(error) {
 				if(typeof err != "undefined")
@@ -226,7 +245,7 @@ function ScioCordova(){
 			function(winParam) {
 				if(typeof cb != "undefined")
 				if(cb)
-					cb();
+					cb(winParam);
 			},
 			function(error) {
 				if(typeof err != "undefined")
