@@ -58,6 +58,7 @@ public final class MainActivity extends BaseScioActivity {
     private TextView usernameTextView;
     private TextView modelTextView;
     private TextView version;
+    private TextView statusSensorTextView;
     private ProgressDialog progressDialog;
 
     // Members
@@ -67,13 +68,106 @@ public final class MainActivity extends BaseScioActivity {
     private String modelId;
     private String modelName;
 
+    // SCiO
+    private ScioReading scan;
+    private ScioDeviceCalibrateHandler scioDeviceCalibrateHandler;
+    private ScioDeviceScanHandler scioDeviceScanHandler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
 
+        initHandlers();
+
         initUI();
+    }
+
+    private void initHandlers() {
+        scioDeviceScanHandler = new ScioDeviceScanHandler() {
+            @Override
+            public void onSuccess(final ScioReading reading) {
+                scan = reading;
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Scan saved. you can now analyze it.", Toast.LENGTH_SHORT).show();
+                        dismissingProgress();
+                    }
+                });
+            }
+
+            @Override
+            public void onNeedCalibrate() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Can not scan. Calibration is needed", Toast.LENGTH_SHORT).show();
+                        dismissingProgress();
+                    }
+                });
+            }
+
+            @Override
+            public void onError() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Error while scanning", Toast.LENGTH_SHORT).show();
+                        dismissingProgress();
+                    }
+                });
+
+            }
+
+            @Override
+            public void onTimeout() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Timeout while scanning", Toast.LENGTH_SHORT).show();
+                        dismissingProgress();
+                    }
+                });
+            }
+        };
+
+        scioDeviceCalibrateHandler = new ScioDeviceCalibrateHandler() {
+            @Override
+            public void onSuccess() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "SCiO was calibrated successfully", Toast.LENGTH_SHORT).show();
+                        dismissingProgress();
+                    }
+                });
+            }
+
+            @Override
+            public void onError() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Error while calibrating", Toast.LENGTH_SHORT).show();
+                        dismissingProgress();
+                    }
+                });
+            }
+
+            @Override
+            public void onTimeout() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Timeout while calibrating", Toast.LENGTH_SHORT).show();
+                        dismissingProgress();
+                    }
+                });
+            }
+        };
     }
 
     @Override
@@ -130,7 +224,7 @@ public final class MainActivity extends BaseScioActivity {
                 updateDisplay();
                 Toast.makeText(getApplicationContext(), "SCiO button was pressed", Toast.LENGTH_SHORT).show();
 
-                doScan(null);
+                scanAndAnalyze();
             }
         });
     }
@@ -225,15 +319,87 @@ public final class MainActivity extends BaseScioActivity {
     }
 
     public void getScioVersion(final View view) {
+        if (!isScioSensorAvailable()) {
+            getScioDeviceVersion();
+        }
+        else {
+            if (isDeviceConnected()) {
+                // both available. select
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                //Device
+                                getScioDeviceVersion();
+                                break;
+
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                //Sensor
+                                getScioSensorVersion();
+                                break;
+                        }
+                    }
+                };
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("Which SCiO?").setPositiveButton("SCiO Device", dialogClickListener)
+                        .setNegativeButton("SCiO Sensor", dialogClickListener).show();
+            }
+            else {
+                getScioSensorVersion();
+            }
+        }
+
+
+    }
+
+    private void getScioDeviceVersion() {
         if (!isDeviceConnected()) {
             Toast.makeText(getApplicationContext(), "Device is not connected. No valid SCiO id.", Toast.LENGTH_SHORT).show();
-
             return;
         }
 
         progressDialog = ProgressDialog.show(this, "Please Wait", "Getting SCiO Version...", false);
 
         getScioCloud().getScioVersion(getScioDevice().getId(), new ScioCloudSCiOVersionCallback() {
+            @Override
+            public void onSuccess(final String scioVersion) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setTitle("SCiO Version")
+                                .setMessage(scioVersion)
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                    }
+                                })
+                                .setIcon(android.R.drawable.ic_dialog_info)
+                                .show();
+
+                        dismissingProgress();
+                    }
+                });
+            }
+
+            @Override
+            public void onError(int i, String s) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Error while get SCiO version", Toast.LENGTH_SHORT).show();
+                        dismissingProgress();
+                    }
+                });
+            }
+        });
+    }
+
+    private void getScioSensorVersion() {
+        progressDialog = ProgressDialog.show(this, "Please Wait", "Getting SCiO Version...", false);
+
+        getScioCloud().getScioVersion(getScioSensor().getId(), new ScioCloudSCiOVersionCallback() {
             @Override
             public void onSuccess(final String scioVersion) {
                 runOnUiThread(new Runnable() {
@@ -328,40 +494,7 @@ public final class MainActivity extends BaseScioActivity {
 
         progressDialog = ProgressDialog.show(this, "Please Wait", "Calibrating...", false);
 
-        getScioDevice().calibrate(new ScioDeviceCalibrateHandler() {
-            @Override
-            public void onSuccess() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(), "SCiO was calibrated successfully", Toast.LENGTH_SHORT).show();
-                        dismissingProgress();
-                    }
-                });
-            }
-
-            @Override
-            public void onError() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(), "Error while calibrating", Toast.LENGTH_SHORT).show();
-                        dismissingProgress();
-                    }
-                });
-            }
-
-            @Override
-            public void onTimeout() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(), "Timeout while calibrating", Toast.LENGTH_SHORT).show();
-                        dismissingProgress();
-                    }
-                });
-            }
-        });
+        getScioDevice().calibrate(scioDeviceCalibrateHandler);
     }
 
     public void readBattery(final View view) {
@@ -486,7 +619,48 @@ public final class MainActivity extends BaseScioActivity {
     }
 
     public void doScan(final View view) {
+        if (!isDeviceConnected()) {
+            Toast.makeText(getApplicationContext(), "Can not scan. SCiO is not connected", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        if (modelId == null) {
+            Toast.makeText(getApplicationContext(), "Can not scan. Model was not selected.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!isLoggedIn()) {
+            Toast.makeText(getApplicationContext(), "Can not scan. User is not logged in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        progressDialog = ProgressDialog.show(this, "Please Wait", "Analyzing...", false);
+
+        getScioDevice().scan(scioDeviceScanHandler);
+    }
+
+    public void doScanSensor(View view) {
+        if (isScioSensorAvailable()) {
+            if (modelId == null) {
+                Toast.makeText(getApplicationContext(), "Can not scan. Model was not selected.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (!isLoggedIn()) {
+                Toast.makeText(getApplicationContext(), "Can not scan. User is not logged in", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            progressDialog = ProgressDialog.show(this, "Please Wait", "Analyzing...", false);
+
+            getScioSensor().scan(scioDeviceScanHandler);
+        }
+        else {
+            Toast.makeText(getApplicationContext(), "SCiO Sensor not available", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void scanAndAnalyze() {
         if (!isDeviceConnected()) {
             Toast.makeText(getApplicationContext(), "Can not scan. SCiO is not connected", Toast.LENGTH_SHORT).show();
             return;
@@ -507,35 +681,7 @@ public final class MainActivity extends BaseScioActivity {
         getScioDevice().scan(new ScioDeviceScanHandler() {
             @Override
             public void onSuccess(final ScioReading reading) {
-                // ScioReading object is Serializable and can be saved to be used later for analyzing.
-                List<String> modelsToAnalyze = new ArrayList<>();
-                modelsToAnalyze.addAll(Arrays.asList(modelId.split(",")));
-
-                getScioCloud().analyze(reading, modelsToAnalyze, new ScioCloudAnalyzeManyCallback() {
-                    @Override
-                    public void onSuccess(final List<ScioModel> models) {
-                        Log.d(TAG, "analyze onSuccess");
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showAnalyzeResults(models);
-                                dismissingProgress();
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onError(final int code, final String msg) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(getApplicationContext(), "Error while analyzing: " + msg, Toast.LENGTH_SHORT).show();
-                                dismissingProgress();
-                            }
-                        });
-
-                    }
-                });
+                analyzeScioReading(reading);
             }
 
             @Override
@@ -634,6 +780,7 @@ public final class MainActivity extends BaseScioActivity {
         addressTextView = (TextView) findViewById(R.id.tv_scio_address);
         statusTextView = (TextView) findViewById(R.id.tv_scio_status);
         usernameTextView = (TextView) findViewById(R.id.tv_username);
+        statusSensorTextView = (TextView) findViewById(R.id.tv_scio_status_sensor);
         modelTextView = (TextView) findViewById(R.id.tv_model);
         version = (TextView) findViewById(R.id.version);
 
@@ -642,6 +789,13 @@ public final class MainActivity extends BaseScioActivity {
             version.setText("v" + pInfo.versionName);
         }
         catch (PackageManager.NameNotFoundException e) {
+        }
+
+        if(isScioSensorAvailable()) {
+            statusSensorTextView.setText("Avaiable");
+        }
+        else {
+            statusSensorTextView.setText("Not Avaiable");
         }
     }
 
@@ -669,6 +823,118 @@ public final class MainActivity extends BaseScioActivity {
         }
         else {
             statusTextView.setText("Connected");
+        }
+    }
+
+    private void analyzeScioReading(ScioReading reading) {
+        if (reading == null && scan == null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplicationContext(), "Please perform a scan before analyzing.", Toast.LENGTH_SHORT).show();
+                    dismissingProgress();
+                }
+            });
+
+            return;
+        }
+
+        ScioReading scioReading = reading == null ? scan : reading;
+
+        // ScioReading object is Serializable and can be saved to be used later for analyzing.
+        List<String> modelsToAnalyze = new ArrayList<>();
+        modelsToAnalyze.addAll(Arrays.asList(modelId.split(",")));
+
+        getScioCloud().analyze(scioReading, modelsToAnalyze, new ScioCloudAnalyzeManyCallback() {
+            @Override
+            public void onSuccess(final List<ScioModel> models) {
+                Log.d(TAG, "analyze onSuccess");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showAnalyzeResults(models);
+                        dismissingProgress();
+                    }
+                });
+            }
+
+            @Override
+            public void onError(final int code, final String msg) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Error while analyzing: " + msg, Toast.LENGTH_SHORT).show();
+                        dismissingProgress();
+                    }
+                });
+            }
+        });
+    }
+
+    public void doAnalyze(View view) {
+        analyzeScioReading(null);
+    }
+
+    public void checkCalibrationSensor(View view) {
+        if (isScioSensorAvailable()) {
+            Toast.makeText(getApplicationContext(), "SCiO Sensor Requires calibration? " + getScioSensor().isCalibrationNeeded(), Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Toast.makeText(getApplicationContext(), "SCiO Sensor not available", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void doCalibrateSensor(View view) {
+        if (isScioSensorAvailable()) {
+
+            progressDialog = ProgressDialog.show(this, "Please Wait", "Calibrating...", false);
+
+            getScioSensor().calibrate(new ScioDeviceCalibrateHandler() {
+                @Override
+                public void onSuccess() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "SCiO was calibrated successfully", Toast.LENGTH_SHORT).show();
+                            dismissingProgress();
+                        }
+                    });
+                }
+
+                @Override
+                public void onError() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "Error while calibrating", Toast.LENGTH_SHORT).show();
+                            dismissingProgress();
+                        }
+                    });
+                }
+
+                @Override
+                public void onTimeout() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "Timeout while calibrating", Toast.LENGTH_SHORT).show();
+                            dismissingProgress();
+                        }
+                    });
+                }
+            });
+        }
+        else {
+            Toast.makeText(getApplicationContext(), "SCiO Sensor not available", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void doGetIdSensor(View view) {
+        if (isScioSensorAvailable()) {
+            Toast.makeText(getApplicationContext(), "SCiO Sensor ID: " + getScioSensor().getId(), Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Toast.makeText(getApplicationContext(), "SCiO Sensor not available", Toast.LENGTH_SHORT).show();
         }
     }
 }

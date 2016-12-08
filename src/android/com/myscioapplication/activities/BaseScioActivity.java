@@ -10,6 +10,7 @@ import com.consumerphysics.android.sdk.callback.device.ScioDeviceCallback;
 import com.consumerphysics.android.sdk.callback.device.ScioDeviceConnectHandler;
 import com.consumerphysics.android.sdk.sciosdk.ScioCloud;
 import com.consumerphysics.android.sdk.sciosdk.ScioDevice;
+import com.consumerphysics.android.sdk.sciosdk.ScioSensor;
 
 import consumerphysics.com.myscioapplication.config.Constants;
 import consumerphysics.com.myscioapplication.interfaces.IScioDevice;
@@ -22,6 +23,7 @@ public class BaseScioActivity extends Activity implements IScioDevice {
 
     private ScioCloud scioCloud;
     private ScioDevice scioDevice;
+    private ScioSensor scioSensor;
 
     protected ScioCloud getScioCloud() {
         return scioCloud;
@@ -29,6 +31,14 @@ public class BaseScioActivity extends Activity implements IScioDevice {
 
     protected ScioDevice getScioDevice() {
         return scioDevice;
+    }
+
+    public ScioSensor getScioSensor() {
+        return scioSensor;
+    }
+
+    protected boolean isScioSensorAvailable() {
+        return scioSensor.getId() != null;
     }
 
     @Override
@@ -39,6 +49,7 @@ public class BaseScioActivity extends Activity implements IScioDevice {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         scioCloud = new ScioCloud(this);
+        scioSensor = new ScioSensor(this);
     }
 
     @Override
