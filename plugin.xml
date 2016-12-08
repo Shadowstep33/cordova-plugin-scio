@@ -11,7 +11,6 @@ id="cordova-plugin-scio" version="0.2.3">
 
     <platform name="android">
 
-		<framework src="src/android/com/myscioapplication/scio-sdk.gradle" custom="true" type="gradleReference" />
 
 		<resource-file src="aar/SCiOSDK_Android.aar" target="libs/SCiOSDK_Android.aar" />
 		
