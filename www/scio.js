@@ -95,7 +95,7 @@ function ScioCordova(){
 					}
 					
 				}catch(e){
-				
+					console.log(e);
 				}
 				
 				if(typeof cb != "undefined")
@@ -254,6 +254,23 @@ function ScioCordova(){
 			},
 			"ScioCordova",
 			"isconnected",
+			[]
+		);
+	},
+	this.isLoggedIn = function(cb, err){
+		cordova.exec(
+			function(winParam) {
+				if(typeof cb != "undefined")
+				if(cb)
+					cb(winParam);
+			},
+			function(error) {
+				if(typeof err != "undefined")
+				if(err)
+					err(error);
+			},
+			"ScioCordova",
+			"isauth",
 			[]
 		);
 	}
