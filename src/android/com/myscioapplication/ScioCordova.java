@@ -333,7 +333,7 @@ public class ScioCordova extends CordovaPlugin implements IScioDevice {
 		}
 		if(action.equals("isauth")){
 
-			callbackContext.success(valueOf(isLoggedIn()()));
+			callbackContext.success(valueOf(isLoggedIn()));
             return true;
 		}
 		
